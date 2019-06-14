@@ -1,0 +1,333 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "This template installs SolarWinds Orion based family products EVAL. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template.",
+  
+  
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": { "default": "Machine specific" },
+          "Parameters": [ "InstanceType", "KeyName" ]
+        },
+        {
+          "Label": { "default": "Orion specific" },
+          "Parameters": [ "Products", "AdvancedInstallation" ]
+        },
+        {
+          "Label": { "default": "DB specific" },
+          "Parameters": [ "AdvancedInstallation", "SqlUserName", "SqlPassword", "CreateNewDatabase", "OrionDatabaseName", "OrionDbAccountName", "OrionDatabaseAccountPassword" ]
+        }
+      ]
+    }
+  },
+ 
+  "Parameters": {
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+
+    "InstanceType": {
+      "Description": "Amazon EC2 instance type",
+      "Type": "String",
+      "Default": "m4.2xlarge",
+      "AllowedValues": [ "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m4.16xlarge" ],
+      "ConstraintDescription": "Must be a valid EC2 instance type."
+    },
+
+    "Products": {
+      "Description": "A comma seperated list (spaces not allowed) of SolarWinds products that you want to install on this instance. Valid values are SAM,NPM,SRM,NCM",
+      "Type": "String",
+      "Default": "SAM,NPM"
+    }
+
+   
+  },
+
+  
+
+  "Mappings": {
+    "AWSRegion2AMI": {
+      "ap-northeast-1": { "Windows2016": "ami-0225c88dfaf89d787" },
+      "ap-northeast-2": { "Windows2016": "ami-05ec63f885e1c6f2a" },
+      "ap-south-1": { "Windows2016": "ami-07e6b11175e3fa715" },
+      "ap-southeast-1": { "Windows2016": "ami-04385f3f533c85af7" },
+      "ap-southeast-2": { "Windows2016": "ami-02e3986f071e14a71" },
+      "ca-central-1": { "Windows2016": "ami-0ee0c966a33759216" },
+      "eu-central-1": { "Windows2016": "ami-014b173b0f52c004e" },
+      "eu-west-1": { "Windows2016": "ami-0dad95819a9372f76" },
+      "eu-west-2": { "Windows2016": "ami-06a27ce600d784c71" },
+      "eu-west-3": { "Windows2016": "ami-0a729892011f4185b" },
+      "eu-north-1": { "Windows2016": "ami-026aa62df198e6f8a" },
+      "sa-east-1": { "Windows2016": "ami-0d44cef69e0b580f4" },
+      "us-east-1": { "Windows2016": "ami-041114ddee4a98333" },
+      "us-east-2": { "Windows2016": "ami-0170ffc1abff2ebdc" },
+      "us-west-1": { "Windows2016": "ami-01238fbae24a14ace" },
+      "us-west-2": { "Windows2016": "ami-019e99815e07ceb49" }
+    }
+  },
+
+  "Resources": {
+
+    "InstanceSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "RDP, HTTP, HTTPS, ICMP",
+        "SecurityGroupIngress": [
+          {
+            "Description": "RDP",
+            "IpProtocol": "tcp",
+            "FromPort": "3389",
+            "ToPort": "3389",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "Eval Web Port",
+            "IpProtocol": "tcp",
+            "FromPort": "8787",
+            "ToPort": "8787",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "Non-eval web port",
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "HTTPS",
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "SNMP",
+            "IpProtocol": "udp",
+            "FromPort": "161",
+            "ToPort": "162",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "ASA polling",
+            "IpProtocol": "TCP",
+            "FromPort": "5671",
+            "ToPort": "5671",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "Rabbit Clustering",
+            "IpProtocol": "tcp",
+            "FromPort": "25672",
+            "ToPort": "25672",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "SWIS",
+            "IpProtocol": "TCP",
+            "FromPort": "17777",
+            "ToPort": "17778",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "Cortex",
+            "IpProtocol": "TCP",
+            "FromPort": "17799",
+            "ToPort": "17799",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "MS SQL Server",
+            "IpProtocol": "TCP",
+            "FromPort": "1433",
+            "ToPort": "1433",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "Description": "tcp",
+            "IpProtocol": "icmp",
+            "FromPort": "-1",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+
+    
+
+   
+
+    "WindowsServer": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "c:\\cfn\\cfn-hup.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[main]\n",
+                      "stack=",
+                      { "Ref": "AWS::StackId" },
+                      "\n",
+                      "region=",
+                      { "Ref": "AWS::Region" },
+                      "\n"
+                    ]
+                  ]
+                }
+              },
+              "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[cfn-auto-reloader-hook]\n",
+                      "triggers=post.update\n",
+                      "path=Resources.WindowsServer.Metadata.AWS::CloudFormation::Init\n",
+                      "action=cfn-init.exe -v -s ",
+                      { "Ref": "AWS::StackId" },
+                      " -r WindowsServer",
+                      " --region ",
+                      { "Ref": "AWS::Region" },
+                      "\n"
+                    ]
+                  ]
+                }
+              },
+              "C:\\cfn\\scripts\\SolarWinds-Orion-Install.exe": {
+                "source": "https://downloads.solarwinds.com/solarwinds/OfflineInstallers/RTM/NPM/Solarwinds-Orion-NPM-12.4-OfflineInstaller.exe"
+              },
+              "C:\\cfn\\scripts\\Orion-Install-Config.xml": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n",
+                      "<SilentConfig>\r\n",
+                      "  <InstallerConfiguration>\r\n",
+                      "    <ProductsToInstall>",{ "Ref": "Products" },"</ProductsToInstall>\r\n",
+                      "    <Products></Products>\r\n",
+                      "    <Components></Components>\r\n",
+                      "    <InstallPath></InstallPath>\r\n",
+                      "    <AdvancedInstallMode>False</AdvancedInstallMode>\r\n",
+                      "    <SkipConfigurationWizardRun>false</SkipConfigurationWizardRun>\r\n",
+                      "  </InstallerConfiguration>\r\n",
+                      "  <Host>\r\n",
+                      "  <Info>\r\n",
+                      "    <ReconfigureDatabase>true</ReconfigureDatabase>\r\n",
+                      "    <ReconfigureWebsite>true</ReconfigureWebsite>\r\n",
+                      "    <ReconfigureServices>true</ReconfigureServices>\r\n",
+                      "  </Info>\r\n",
+                      "  </Host>\r\n",
+                      "</SilentConfig>\r\n"
+                    ]
+                  ]
+                }
+              }
+            },
+
+            "commands": {
+              "1-install-orion": {
+                "command": "start /wait C:\\cfn\\scripts\\SolarWinds-Orion-Install.exe /s /notests /ConfigFile=\"C:\\cfn\\scripts\\Orion-Install-Config.xml\"",
+                "waitAfterCompletion": "0"
+              },
+              "2-signal-success": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "cfn-signal.exe -e %ERRORLEVEL% \"",
+                      { "Fn::Base64": { "Ref": "WindowsServerWaitHandle" } },
+                      "\""
+                    ]
+                  ]
+                }
+              }
+            },
+
+            "services": {
+              "windows": {
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [ "c:\\cfn\\cfn-hup.conf", "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf" ]
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceType" },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            { "Ref": "AWS::Region" },
+            "Windows2016"
+          ]
+        },
+        "SecurityGroups": [ { "Ref": "InstanceSecurityGroup" } ],
+        "KeyName": { "Ref": "KeyName" },
+        "Tags" : [
+          {"Key" : "Name", "Value" : { "Ref":"AWS::StackName" }}
+         ],
+         "BlockDeviceMappings" : [
+          { "DeviceName" : "/dev/sda1", "Ebs" : { "VolumeSize" : "100" } }
+          ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "<script>\n",
+
+                "cfn-init.exe -v -s ",
+                { "Ref": "AWS::StackId" },
+                " -r WindowsServer",
+                " --region ",
+                { "Ref": "AWS::Region" },
+                "\n",
+
+                "</script>"
+              ]
+            ]
+          }
+        }
+      }
+    },
+
+    "WindowsServerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "WindowsServerWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "DependsOn": "WindowsServer",
+      "Properties": {
+        "Handle": { "Ref": "WindowsServerWaitHandle" },
+        "Timeout": "7200"
+      }
+    }
+  },
+
+  "Outputs": {
+    "ProductsInstalled": {
+      "Value": { "Ref": "Products" },
+      "Description": "Products installed on this instance."
+    },
+    "OrionIP": {
+      "Description": "IpAddress of installed machine",
+      "Value": { "Fn::GetAtt": [ "WindowsServer", "PublicIp" ] }
+    }
+    
+  }
+}
