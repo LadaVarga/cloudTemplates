@@ -3,7 +3,7 @@ $urlSilentConfig = "https://github.com/LadaVarga/cloudTemplates/blob/master/Azur
 $output = "c:\temp\Solarwinds-Orion-NPM.exe"
 $outputsilent = "C:\temp\silentconfig.xml"
 $start_time = Get-Date
-
+#test
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($url, $output)
 #OR
