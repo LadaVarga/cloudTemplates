@@ -5,7 +5,7 @@
      <InstallPath>
     </InstallPath>
     <AdvancedInstallMode>False</AdvancedInstallMode>
-    <SkipConfigurationWizardRun>True</SkipConfigurationWizardRun>
+    <SkipConfigurationWizardRun>False</SkipConfigurationWizardRun>
     <MainPollerHostname>
     </MainPollerHostname>
     <WebConsoleUserName>Admin</WebConsoleUserName>
