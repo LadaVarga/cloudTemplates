@@ -19,4 +19,4 @@ $wc.DownloadFile($urlSilentConfig ,$outputsilent)
 
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
-start -Wait -FilePath "c:\windows\temp\Solarwinds-Orion-NPM.exe" -ArgumentList "/s /notests /ConfigFile=`"c:\windows\temp\silentconfigEval.xml`""
+start -Wait -FilePath "c:\windows\temp\Solarwinds-Orion-NPM.exe" -ArgumentList "/s /notests /ConfigFile=`"c:\windows\temp\silentconfig.xml`""
