@@ -11,8 +11,8 @@ Add-Content $env:windir\System32\drivers\etc\hosts "10.110.66.139 licenseserver.
 Add-Content $env:windir\System32\drivers\etc\hosts "10.110.66.139 licensestatusserver.solarwinds.com"
 Add-Content $env:windir\System32\drivers\etc\hosts "127.0.0.2 cdn.pendo.io"
 
-$url = "http://product-catalog.swdev.local/api/installer/?stage=Stable"
-
+#$url = "http://product-catalog.swdev.local/api/installer/?stage=Stable"
+$url = "http://product-catalog.dev.local/resources/Falcon/2.4/2.4.0.172/SolarWinds.Orion.Installer.exe"
 $output = "c:\windows\temp\Solarwinds-Orion-NPM.exe"
   
   # $xml | Out-File -FilePath "C:\windows\Temp\silentconfig.xml"
