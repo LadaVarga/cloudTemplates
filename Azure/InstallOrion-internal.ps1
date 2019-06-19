@@ -1,3 +1,10 @@
+param (
+ [string]$catalogStage = "production_internal",
+ [string]$productstoinstall = "NPM,SAM",
+ [string]$products,
+ [string]$components
+)
+
 Add-Content $env:windir\System32\drivers\etc\hosts "10.110.68.107 product-catalog.swdev.local"
 Add-Content $env:windir\System32\drivers\etc\hosts "10.110.68.107 product-catalog.dev.local"
 Add-Content $env:windir\System32\drivers\etc\hosts "10.110.66.139 licenseserver.solarwinds.com"
@@ -7,17 +14,30 @@ Add-Content $env:windir\System32\drivers\etc\hosts "127.0.0.2 cdn.pendo.io"
 $url = "http://product-catalog.swdev.local/api/installer/?stage=Stable"
 
 $output = "c:\windows\temp\Solarwinds-Orion-NPM.exe"
-$xmlEval=
-[xml]'<?xml version="1.0" encoding="utf-8"?>
+  
+  # $xml | Out-File -FilePath "C:\windows\Temp\silentconfig.xml"
+ $silentConfig="C:\windows\Temp\silentconfig.xml"
+
+
+ 
+    $stringBuilder = New-Object System.Text.StringBuilder
+    $null = $stringBuilder.AppendLine(@"
+<?xml version="1.0" encoding="utf-8"?>
 <SilentConfig>
   <InstallerConfiguration>
     <ProductsToInstall>NPM</ProductsToInstall>
      <InstallPath></InstallPath>
     <AdvancedInstallMode>False</AdvancedInstallMode>
   </InstallerConfiguration>
-  </SilentConfig>'
+  </SilentConfig>
+"@);
+#$null | Out-File -FilePath $silentConfig
+[xml]$defaultSilentCwConfig = $stringBuilder.ToString()
+#$defaultSilentCwConfig | Out-File -FilePath $silentConfig
 
- $xml | Out-File -FilePath "C:\windows\Temp\silentconfigEval.xml"
+ # Write-Host "Saving config to $silentConfig"
+    
+    $defaultSilentCwConfig.Save($silentConfig)
 
 $start_time = Get-Date
 
@@ -27,7 +47,7 @@ Set-location C:\windows\Temp
 $wc = (New-Object System.Net.WebClient)
 $wc.DownloadFile($url, $output)
 #OR
-(New-Object System.Net.WebClient).DownloadFile($url, $output)
+#(New-Object System.Net.WebClient).DownloadFile($url, $output)
 
 
 
