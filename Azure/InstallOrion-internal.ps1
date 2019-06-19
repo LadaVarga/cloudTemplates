@@ -5,9 +5,20 @@ Add-Content $env:windir\System32\drivers\etc\hosts "10.110.66.139 licensestatuss
 Add-Content $env:windir\System32\drivers\etc\hosts "127.0.0.2 cdn.pendo.io"
 
 $url = "http://product-catalog.swdev.local/api/installer/?stage=Stable"
-$urlSilentConfig = "https://raw.githubusercontent.com/LadaVarga/cloudTemplates/master/Azure/silentconfigEval.xml"
+
 $output = "c:\windows\temp\Solarwinds-Orion-NPM.exe"
-$outputsilent = "c:\windows\temp\silentconfig.xml"
+$xmlEval=
+[xml]'<?xml version="1.0" encoding="utf-8"?>
+<SilentConfig>
+  <InstallerConfiguration>
+    <ProductsToInstall>NPM</ProductsToInstall>
+     <InstallPath></InstallPath>
+    <AdvancedInstallMode>False</AdvancedInstallMode>
+  </InstallerConfiguration>
+  </SilentConfig>'
+
+ $xml | Out-File -FilePath "C:\windows\Temp\silentconfigEval.xml"
+
 $start_time = Get-Date
 
 
@@ -18,10 +29,7 @@ $wc.DownloadFile($url, $output)
 #OR
 (New-Object System.Net.WebClient).DownloadFile($url, $output)
 
-#$wc2 = New-Object System.Net.WebClient
-$wc.DownloadFile($urlSilentConfig ,$outputsilent)
-#OR
-#(New-Object System.Net.WebClient).DownloadFile($urlSilentConfig, $outputsilent)
+
 
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
