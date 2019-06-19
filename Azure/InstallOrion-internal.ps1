@@ -79,8 +79,8 @@ try{
                 throw "product `"$installername`": installer finished with error"
             }
 
-            $installerstartedevent = (get-param $productconfig "installerstartedscript" "")
-            if ($installerstartedevent) { invoke-expression $installerstartedevent }
+            #$installerstartedevent = (get-param $productconfig "installerstartedscript" "")
+            #if ($installerstartedevent) { invoke-expression $installerstartedevent }
             
             }
             catch
@@ -90,6 +90,10 @@ try{
        Write-host "Installation failed"
 
         throw $_
+    }
+    finally
+    {
+        Write-Host "Installation passed."
     }
 
 
