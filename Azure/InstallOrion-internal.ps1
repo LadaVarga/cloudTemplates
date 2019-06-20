@@ -25,7 +25,7 @@ $output = "c:\windows\temp\Solarwinds-Orion-NPM.exe"
 <?xml version="1.0" encoding="utf-8"?>
 <SilentConfig>
   <InstallerConfiguration>
-    <ProductsToInstall>NPM</ProductsToInstall>
+    <ProductsToInstall>$productstoinstall</ProductsToInstall>
      <InstallPath></InstallPath>
     <AdvancedInstallMode>False</AdvancedInstallMode>
   </InstallerConfiguration>
